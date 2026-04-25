@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'controllers/main_controller.dart';
 import 'controllers/cart_controller.dart';
+import 'controllers/order_controller.dart';
 import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
 
@@ -16,6 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     Get.put(MainController());
     Get.put(CartController());
+    Get.put(OrderController());
 
     return GetMaterialApp(
       title: '电商App',

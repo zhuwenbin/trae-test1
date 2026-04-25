@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/cart_controller.dart';
+import '../routes/app_routes.dart';
 
 class CartPage extends StatelessWidget {
   CartPage({super.key});
@@ -284,7 +285,7 @@ class CartPage extends StatelessWidget {
                                       .where((item) => item.isSelected.value)
                                       .isEmpty
                                   ? null
-                                  : () {},
+                                  : _goToOrderConfirm,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 disabledBackgroundColor: Colors.grey[300],
@@ -293,7 +294,7 @@ class CartPage extends StatelessWidget {
                                 ),
                               ),
                               child: Text(
-                                '结算',
+                                '去结算',
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -317,5 +318,12 @@ class CartPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _goToOrderConfirm() {
+    final selectedItems = cartController.cartItems
+        .where((item) => item.isSelected.value)
+        .toList();
+    Get.toNamed(AppRoutes.orderConfirm, arguments: selectedItems);
   }
 }
