@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/order.dart';
 import '../controllers/cart_controller.dart';
 
 class OrderController extends GetxController {
   final RxList<Order> _orders = <Order>[].obs;
-  final Rx<OrderStatus?> _selectedOrder = Rx<OrderStatus?>(null);
 
   List<Order> get orders => _orders;
   

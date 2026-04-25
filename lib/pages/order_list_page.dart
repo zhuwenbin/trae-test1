@@ -9,7 +9,6 @@ class OrderListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final orderController = Get.find<OrderController>();
     final initialStatus = Get.arguments as OrderStatus?;
 
     return Scaffold(
@@ -317,7 +316,7 @@ class _OrderListContentState extends State<OrderListContent> {
           ),
           Row(
             children: [
-              const Text(
+              Text(
                 '订单金额: ',
                 style: TextStyle(
                   fontSize: 13,
