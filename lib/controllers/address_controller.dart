@@ -108,7 +108,7 @@ class AddressController extends GetxController {
 
   bool validatePhone(String phone) {
     if (phone.length != 11) return false;
-    final phoneReg = RegExp(r'^1[3-9]\d{9}$');
+    final phoneReg = RegExp(r'^1\d{10}$');
     return phoneReg.hasMatch(phone);
   }
 }

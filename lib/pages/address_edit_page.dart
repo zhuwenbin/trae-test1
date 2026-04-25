@@ -251,7 +251,7 @@ class _AddressEditPageState extends State<AddressEditPage> {
                     color: Colors.black87,
                   ),
                   validator: (value) {
-                    if (_province.isEmpty || _city.isEmpty || _district.isEmpty) {
+                    if (_province.isEmpty || _city.isEmpty) {
                       return '请选择所在地区';
                     }
                     return null;
@@ -361,7 +361,11 @@ class _AddressEditPageState extends State<AddressEditPage> {
   }
 
   void _saveAddress() {
-    if (_province.isEmpty || _city.isEmpty || _district.isEmpty) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_province.isEmpty || _city.isEmpty) {
       Get.snackbar(
         '提示',
         '请选择所在地区',
@@ -369,10 +373,6 @@ class _AddressEditPageState extends State<AddressEditPage> {
         backgroundColor: Colors.orange,
         colorText: Colors.white,
       );
-      return;
-    }
-
-    if (!_formKey.currentState!.validate()) {
       return;
     }
 
