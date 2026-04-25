@@ -33,6 +33,7 @@ class CartController extends GetxController {
     final existingIndex = _cartItems.indexWhere((item) => item.product.id == product.id);
     if (existingIndex >= 0) {
       _cartItems[existingIndex].quantity++;
+      _cartItems.refresh();
     } else {
       _cartItems.add(CartItem(product: product));
     }
@@ -154,8 +155,13 @@ class CartController extends GetxController {
                     child: ElevatedButton(
                       onPressed: () {
                         Get.back();
-                        final MainController mainController = Get.find<MainController>();
-                        mainController.changePage(2);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          if (Get.currentRoute != '/main') {
+                            Get.back();
+                          }
+                          final MainController mainController = Get.find<MainController>();
+                          mainController.changePage(2);
+                        });
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
