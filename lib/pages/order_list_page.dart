@@ -184,7 +184,7 @@ class _OrderListContentState extends State<OrderListContent> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
+              color: Colors.grey.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 3,
               offset: const Offset(0, 1),
@@ -223,7 +223,7 @@ class _OrderListContentState extends State<OrderListContent> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
             decoration: BoxDecoration(
-              color: order.status.color.withValues(alpha: 0.1),
+              color: order.status.color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(4),
             ),
             child: Text(

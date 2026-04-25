@@ -43,7 +43,7 @@ class MainPage extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.15),
+                color: Colors.grey.withOpacity(0.15),
                 spreadRadius: 0,
                 blurRadius: 10,
                 offset: const Offset(0, -2),
