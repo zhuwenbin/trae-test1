@@ -43,7 +43,9 @@ class _AddressEditPageState extends State<AddressEditPage> {
       _district = _editAddress!.district;
       _isDefault = _editAddress!.isDefault;
       _regionController = TextEditingController(
-        text: '$_province $_city $_district',
+        text: _district.isNotEmpty 
+            ? '$_province $_city $_district' 
+            : '$_province $_city',
       );
     } else {
       _regionController = TextEditingController();
@@ -79,6 +81,7 @@ class _AddressEditPageState extends State<AddressEditPage> {
         color: Colors.grey[50],
         child: Form(
           key: _formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: ListView(
             padding: const EdgeInsets.all(12),
             children: [
@@ -124,15 +127,18 @@ class _AddressEditPageState extends State<AddressEditPage> {
           _buildFormField(
             label: '手机号码',
             controller: _phoneController,
-            hintText: '请输入手机号码',
+            hintText: '请输入11位手机号码',
             keyboardType: TextInputType.phone,
             maxLength: 11,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return '请输入手机号码';
               }
+              if (value.trim().length != 11) {
+                return '请输入11位手机号码';
+              }
               if (!_addressController.validatePhone(value.trim())) {
-                return '请输入正确的11位手机号';
+                return '请输入正确的手机号格式';
               }
               return null;
             },
@@ -196,7 +202,6 @@ class _AddressEditPageState extends State<AddressEditPage> {
                 ),
                 border: InputBorder.none,
                 counterText: '',
-                errorStyle: const TextStyle(height: 0.8),
               ),
               style: const TextStyle(
                 fontSize: 14,
@@ -231,32 +236,42 @@ class _AddressEditPageState extends State<AddressEditPage> {
               ),
             ),
             Expanded(
-              child: AbsorbPointer(
-                child: TextFormField(
-                  controller: _regionController,
-                  decoration: InputDecoration(
-                    hintText: '请选择省市区',
-                    hintStyle: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[400],
-                    ),
-                    border: InputBorder.none,
-                    suffixIcon: Icon(
-                      Icons.chevron_right,
-                      color: Colors.grey[400],
-                    ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _regionController.text.isEmpty 
+                              ? '请选择省市区' 
+                              : _regionController.text,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: _regionController.text.isEmpty 
+                                ? Colors.grey[400] 
+                                : Colors.black87,
+                          ),
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.grey[400],
+                      ),
+                    ],
                   ),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
-                  validator: (value) {
-                    if (_province.isEmpty || _city.isEmpty) {
-                      return '请选择所在地区';
-                    }
-                    return null;
-                  },
-                ),
+                  if (_regionController.text.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        '请选择所在地区',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.red[700],
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -351,24 +366,37 @@ class _AddressEditPageState extends State<AddressEditPage> {
       pickerStyle: DefaultPickerStyle(),
       onConfirm: (province, city, district) {
         setState(() {
-          _province = province ?? '';
-          _city = city ?? '';
+          _province = province;
+          _city = city;
           _district = district ?? '';
-          _regionController.text = '$_province $_city $_district';
+          
+          if (_district.isNotEmpty) {
+            _regionController.text = '$_province $_city $_district';
+          } else {
+            _regionController.text = '$_province $_city';
+          }
         });
       },
     );
   }
 
   void _saveAddress() {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    if (_province.isEmpty || _city.isEmpty) {
+    if (_regionController.text.isEmpty) {
       Get.snackbar(
         '提示',
         '请选择所在地区',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      setState(() {});
+      return;
+    }
+
+    if (!_formKey.currentState!.validate()) {
+      Get.snackbar(
+        '提示',
+        '请检查表单填写是否正确',
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.orange,
         colorText: Colors.white,
