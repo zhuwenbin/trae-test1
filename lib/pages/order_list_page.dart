@@ -10,6 +10,7 @@ class OrderListPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final initialStatus = Get.arguments as OrderStatus?;
+    final canPop = Navigator.canPop(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -24,6 +25,17 @@ class OrderListPage extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (canPop) {
+              Get.back();
+            } else {
+              Get.offAllNamed(AppRoutes.main);
+            }
+          },
+        ),
       ),
       body: OrderListContent(initialStatus: initialStatus),
     );

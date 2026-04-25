@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/cart_controller.dart';
 import '../models/product.dart';
+import '../routes/app_routes.dart';
 
 class ProductDetailPage extends StatelessWidget {
   const ProductDetailPage({super.key});
@@ -200,7 +201,10 @@ class ProductDetailPage extends StatelessWidget {
                     child: SizedBox(
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          final cartItem = CartItem(product: product);
+                          Get.toNamed(AppRoutes.orderConfirm, arguments: [cartItem]);
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           shape: RoundedRectangleBorder(
