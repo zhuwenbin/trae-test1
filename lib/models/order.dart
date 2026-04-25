@@ -47,32 +47,80 @@ class OrderItem {
 }
 
 class ShippingAddress {
+  final String id;
   final String name;
   final String phone;
   final String province;
   final String city;
   final String district;
   final String detail;
+  final bool isDefault;
 
   ShippingAddress({
+    required this.id,
     required this.name,
     required this.phone,
     required this.province,
     required this.city,
     required this.district,
     required this.detail,
+    this.isDefault = false,
   });
 
   String get fullAddress => '$province$city$district$detail';
 
-  static ShippingAddress getDefaultAddress() {
+  String get maskedPhone {
+    if (phone.length == 11) {
+      return '${phone.substring(0, 3)}****${phone.substring(7)}';
+    }
+    return phone;
+  }
+
+  ShippingAddress copyWith({
+    String? id,
+    String? name,
+    String? phone,
+    String? province,
+    String? city,
+    String? district,
+    String? detail,
+    bool? isDefault,
+  }) {
     return ShippingAddress(
-      name: '张三',
-      phone: '138****8888',
-      province: '广东省',
-      city: '深圳市',
-      district: '南山区',
-      detail: '科技园路123号 创意大厦A栋1001室',
+      id: id ?? this.id,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
+      province: province ?? this.province,
+      city: city ?? this.city,
+      district: district ?? this.district,
+      detail: detail ?? this.detail,
+      isDefault: isDefault ?? this.isDefault,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'phone': phone,
+      'province': province,
+      'city': city,
+      'district': district,
+      'detail': detail,
+      'isDefault': isDefault,
+    };
+  }
+
+  static ShippingAddress fromJson(Map<String, dynamic> json) {
+    return ShippingAddress(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      phone: json['phone'] as String,
+      province: json['province'] as String,
+      city: json['city'] as String,
+      district: json['district'] as String,
+      detail: json['detail'] as String,
+      isDefault: json['isDefault'] as bool? ?? false,
     );
   }
 }

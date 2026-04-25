@@ -8,4 +8,6 @@ class AppRoutes {
   static const String orderConfirm = '/order-confirm';
   static const String orderList = '/order-list';
   static const String orderDetail = '/order-detail';
+  static const String addressList = '/address-list';
+  static const String addressEdit = '/address-edit';
 }

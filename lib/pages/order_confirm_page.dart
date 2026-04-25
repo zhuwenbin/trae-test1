@@ -2,18 +2,32 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/cart_controller.dart';
 import '../controllers/order_controller.dart';
+import '../controllers/address_controller.dart';
 import '../models/order.dart';
 import '../routes/app_routes.dart';
 
-class OrderConfirmPage extends StatelessWidget {
+class OrderConfirmPage extends StatefulWidget {
   const OrderConfirmPage({super.key});
+
+  @override
+  State<OrderConfirmPage> createState() => _OrderConfirmPageState();
+}
+
+class _OrderConfirmPageState extends State<OrderConfirmPage> {
+  late AddressController _addressController;
+  
+  @override
+  void initState() {
+    super.initState();
+    _addressController = Get.find<AddressController>();
+    _addressController.selectAddress(null);
+  }
 
   @override
   Widget build(BuildContext context) {
     final selectedItems = Get.arguments as List<CartItem>;
     final cartController = Get.find<CartController>();
     final orderController = Get.find<OrderController>();
-    final defaultAddress = ShippingAddress.getDefaultAddress();
 
     final totalPrice = selectedItems.fold(
         0.0,
@@ -41,7 +55,7 @@ class OrderConfirmPage extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.all(12),
                 children: [
-                  _buildAddressSection(defaultAddress),
+                  _buildAddressSection(),
                   const SizedBox(height: 12),
                   _buildProductListSection(selectedItems),
                 ],
@@ -54,70 +68,274 @@ class OrderConfirmPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAddressSection(ShippingAddress address) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 3,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(
-            Icons.location_on,
-            color: Colors.red,
-            size: 24,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+  Widget _buildAddressSection() {
+    return Obx(
+      () {
+        final addresses = _addressController.addresses;
+        final selectedAddress = _addressController.getSelectedOrDefault();
+        
+        return GestureDetector(
+          onTap: () {
+            if (addresses.isEmpty) {
+              Get.toNamed(AppRoutes.addressList);
+            } else {
+              _showAddressPicker(addresses, selectedAddress);
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      address.name,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      address.phone,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                  ],
+                Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 24,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  address.fullAddress,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: selectedAddress != null
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Text(
+                                  selectedAddress.name,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  selectedAddress.maskedPhone,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              selectedAddress.fullAddress,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              '请添加收货地址',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              '点击前往添加收货地址',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey[400],
                 ),
               ],
             ),
           ),
-          Icon(
-            Icons.chevron_right,
-            color: Colors.grey[400],
-          ),
-        ],
+        );
+      },
+    );
+  }
+
+  void _showAddressPicker(List<ShippingAddress> addresses, ShippingAddress? selectedAddress) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.grey[100]!),
+                ),
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '选择收货地址',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(12),
+                itemCount: addresses.length,
+                itemBuilder: (context, index) {
+                  final address = addresses[index];
+                  final isSelected = selectedAddress?.id == address.id;
+                  
+                  return GestureDetector(
+                    onTap: () {
+                      _addressController.selectAddress(address);
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.red[50] : Colors.grey[50],
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isSelected ? Colors.red : Colors.transparent,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            isSelected
+                                ? Icons.check_circle
+                                : Icons.radio_button_unchecked,
+                            color: isSelected ? Colors.red : Colors.grey[400],
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      address.name,
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Text(
+                                      address.maskedPhone,
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                    if (address.isDefault) ...[
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 1,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.red[50],
+                                          borderRadius: BorderRadius.circular(3),
+                                        ),
+                                        child: const Text(
+                                          '默认',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  address.fullAddress,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: SizedBox(
+                width: double.infinity,
+                height: 44,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Get.toNamed(AppRoutes.addressEdit);
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.grey[100],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                  ),
+                  child: const Text(
+                    '新建地址',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -327,11 +545,46 @@ class OrderConfirmPage extends StatelessWidget {
     CartController cartController,
     OrderController orderController,
   ) {
-    final defaultAddress = ShippingAddress.getDefaultAddress();
+    final addresses = _addressController.addresses;
+    final selectedAddress = _addressController.getSelectedOrDefault();
+
+    if (addresses.isEmpty) {
+      Get.dialog(
+        AlertDialog(
+          title: const Text('提示'),
+          content: const Text('请先添加收货地址'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Get.back();
+                Get.toNamed(AppRoutes.addressList);
+              },
+              child: const Text('去添加'),
+            ),
+            TextButton(
+              onPressed: () => Get.back(),
+              child: const Text('取消'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (selectedAddress == null) {
+      Get.snackbar(
+        '提示',
+        '请选择一个收货地址',
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.orange,
+        colorText: Colors.white,
+      );
+      return;
+    }
     
     orderController.createOrderFromCart(
       selectedItems: selectedItems,
-      address: defaultAddress,
+      address: selectedAddress,
     );
 
     for (var item in selectedItems) {

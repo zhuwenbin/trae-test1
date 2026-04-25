@@ -10,7 +10,7 @@ class ProfilePage extends StatelessWidget {
     final menuItems = [
       {'icon': Icons.shopping_bag, 'title': '我的订单', 'subtitle': '查看全部订单', 'route': AppRoutes.orderList},
       {'icon': Icons.favorite, 'title': '我的收藏', 'subtitle': '收藏的商品'},
-      {'icon': Icons.location_on, 'title': '收货地址', 'subtitle': '管理收货地址'},
+      {'icon': Icons.location_on, 'title': '收货地址', 'subtitle': '管理收货地址', 'route': AppRoutes.addressList},
       {'icon': Icons.payment, 'title': '支付方式', 'subtitle': '绑定支付账户'},
       {'icon': Icons.help, 'title': '帮助中心', 'subtitle': '常见问题解答'},
       {'icon': Icons.settings, 'title': '设置', 'subtitle': '账户设置'},

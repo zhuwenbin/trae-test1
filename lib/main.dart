@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'controllers/main_controller.dart';
 import 'controllers/cart_controller.dart';
 import 'controllers/order_controller.dart';
+import 'controllers/address_controller.dart';
 import 'routes/app_routes.dart';
 import 'routes/app_pages.dart';
 
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
     Get.put(MainController());
     Get.put(CartController());
     Get.put(OrderController());
+    Get.put(AddressController());
 
     return GetMaterialApp(
       title: '电商App',
