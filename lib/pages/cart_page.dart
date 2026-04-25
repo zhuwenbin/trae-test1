@@ -45,6 +45,14 @@ class CartPage extends StatelessWidget {
                         color: Colors.grey[500],
                       ),
                     ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '快去挑选心仪的商品吧~',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[400],
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -75,6 +83,18 @@ class CartPage extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
+                            Obx(
+                              () => Checkbox(
+                                value: cartItem.isSelected.value,
+                                onChanged: (value) {
+                                  cartController.toggleSelection(cartItem.product.id);
+                                },
+                                activeColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              ),
+                            ),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: Image.network(
@@ -82,6 +102,14 @@ class CartPage extends StatelessWidget {
                                 width: 80,
                                 height: 80,
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 80,
+                                    height: 80,
+                                    color: Colors.grey[200],
+                                    child: const Icon(Icons.image, color: Colors.grey),
+                                  );
+                                },
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -187,48 +215,94 @@ class CartPage extends StatelessWidget {
                   ),
                   child: SafeArea(
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        Obx(
+                          () => Checkbox(
+                            value: cartController.isAllSelected,
+                            onChanged: (value) {
+                              cartController.toggleSelectAll();
+                            },
+                            activeColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                        const Text(
+                          '全选',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        const Spacer(),
                         Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Text(
-                              '合计',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black54,
-                              ),
+                            Row(
+                              children: [
+                                const Text(
+                                  '合计:',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Obx(
+                                  () => Text(
+                                    '¥${cartController.totalPrice.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 2),
                             Obx(
                               () => Text(
-                                '¥${cartController.totalPrice.toStringAsFixed(2)}',
-                                style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
+                                '已选 ${cartController.cartItems.where((item) => item.isSelected.value).length} 件商品',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[500],
                                 ),
                               ),
                             ),
                           ],
                         ),
+                        const SizedBox(width: 12),
                         SizedBox(
-                          width: 150,
-                          height: 48,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(24),
+                          width: 100,
+                          height: 44,
+                          child: Obx(
+                            () => ElevatedButton(
+                              onPressed: cartController.cartItems
+                                      .where((item) => item.isSelected.value)
+                                      .isEmpty
+                                  ? null
+                                  : () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                disabledBackgroundColor: Colors.grey[300],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(22),
+                                ),
                               ),
-                            ),
-                            child: const Text(
-                              '结算',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                              child: Text(
+                                '结算',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: cartController.cartItems
+                                          .where((item) => item.isSelected.value)
+                                          .isEmpty
+                                      ? Colors.grey[500]
+                                      : Colors.white,
+                                ),
                               ),
                             ),
                           ),
